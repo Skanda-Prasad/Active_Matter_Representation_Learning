@@ -1,0 +1,104 @@
+# 3-level hierarchical / multi-scale JEPA for active_matter.
+# Run smoke:
+#   python train_single_file.py --config vit_h_jepa_multiscale_a100.yaml --data_root ../data --wandb_mode disabled --smoke_test --no-resume
+
+seed: 42
+model_type: h_jepa_multiscale
+data_root: "/scratch/${USER}/data/active_matter"
+output_dir: "/scratch/${USER}/am_jepa/h_jepa_multiscale"
+
+context_frames: 16
+target_frames: 16
+frame_stride: 1
+gap: 4
+window_start_stride: 4
+max_windows_per_traj: null
+
+batch_size: 2
+eval_batch_size: 2
+num_workers: 4
+num_epochs: 30
+warmup_epochs: 2
+
+lr: 0.0001
+weight_decay: 0.05
+grad_clip_norm: 1.0
+betas: [0.9, 0.999]
+vicreg_eps: 0.0001
+
+img_size: 256
+mlp_ratio: 4
+drop_path_rate: 0.1
+
+input_channels: 11
+spatial_eval_pool: 4
+knn_k: 10
+
+collapse_var_threshold: 0.0001
+collapse_rank_threshold: 5.0
+
+use_gradient_checkpointing: true
+compile_model: false
+
+stats_max_windows: 512
+save_every_steps: 500
+eval_every_epochs: 1
+log_every_steps: 25
+max_train_windows_per_split: null
+max_eval_windows_per_split: null
+smoke_max_windows_per_split: 16
+smoke_batches_per_epoch: 2
+
+wandb_project: "active-matter-h-jepa"
+wandb_run_name: "h_jepa_multiscale_a100"
+wandb_mode: "online"
+
+resume: true
+
+h_jepa:
+  levels:
+    l1:
+      patch_size: 8
+      embed_dim: 192
+      depth: 6
+      num_heads: 6
+      loss_type: vicreg
+      lambda_inv: 5.0
+      lambda_var: 20.0
+      lambda_cov: 2.0
+      lambda_sig: 0.0
+      weight: 1.0
+    l2:
+      patch_size: 16
+      embed_dim: 384
+      depth: 10
+      num_heads: 8
+      loss_type: vicreg_sigreg
+      lambda_inv: 5.0
+      lambda_var: 15.0
+      lambda_cov: 1.0
+      lambda_sig: 10.0
+      weight: 1.0
+    l3:
+      patch_size: 32
+      embed_dim: 384
+      depth: 8
+      num_heads: 8
+      loss_type: sigreg
+      lambda_inv: 5.0
+      lambda_var: 0.0
+      lambda_cov: 0.0
+      lambda_sig: 25.0
+      weight: 1.0
+
+  use_cross_level_loss: false
+  lambda_cross_12: 0.5
+  lambda_cross_23: 0.5
+  cross_level_start_epoch: 5
+  cross_level_warmup_epochs: 5
+
+  ema_momentum: 0.996
+  predictor_depth: 2
+  predictor_hidden_mult: 4
+  sigreg_eps: 1.0e-8
+  frame_batch_size: 8

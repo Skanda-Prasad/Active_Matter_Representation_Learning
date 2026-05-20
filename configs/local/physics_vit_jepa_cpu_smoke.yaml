@@ -1,0 +1,67 @@
+# Local CPU smoke config for this machine.
+# Detected environment: no usable NVIDIA driver, 8 logical CPUs, about 16 GB RAM.
+# Run:
+#   python train_single_file.py --config configs/local/vit_jepa_local_cpu_smoke.yaml --smoke_test
+
+seed: 42
+data_root: "../data"
+output_dir: "outputs/physics_vit_jepa_local_cpu_smoke"
+device: "cpu"
+
+context_frames: 2
+target_frames: 2
+frame_stride: 1
+gap: 1
+window_start_stride: 32
+max_windows_per_traj: 1
+
+batch_size: 1
+eval_batch_size: 1
+num_workers: 0
+num_epochs: 1
+warmup_epochs: 0
+
+lr: 0.0001
+weight_decay: 0.05
+grad_clip_norm: 1.0
+betas: [0.9, 0.999]
+
+lambda_inv: 5.0
+lambda_var: 20.0
+lambda_cov: 2.0
+vicreg_eps: 0.0001
+
+embed_dim: 64
+depth: 2
+num_heads: 4
+mlp_ratio: 2
+patch_size: 32
+img_size: 256
+drop_path_rate: 0.0
+predictor_width_mult: 2
+predictor_n_blocks: 1
+
+input_channels: 11
+spatial_eval_pool: 2
+knn_k: 1
+
+collapse_var_threshold: 0.001
+collapse_rank_threshold: 2.0
+
+use_gradient_checkpointing: false
+compile_model: false
+
+stats_max_windows: 4
+save_every_steps: 100
+eval_every_epochs: 1
+log_every_steps: 1
+max_train_windows_per_split: 4
+max_eval_windows_per_split: 4
+smoke_max_windows_per_split: 4
+smoke_batches_per_epoch: 1
+
+wandb_project: "active-matter-physics-vit-jepa"
+wandb_run_name: "local_cpu_smoke"
+wandb_mode: "disabled"
+
+resume: false
